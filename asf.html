@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DarkCrack Combo Parser</title>
+<link rel="icon" type="image/png" href="https://darkcrack.com/public/assets/favicon-qqdydts3.png">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{--primary:#3cc47c;--bg:#212121;--card:#2d2d2d;--text:#ffffff;--text-sec:#aaaaaa;--border:#404040;--danger:#ff4757}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Poppins',sans-serif;background-color:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
+header{background-color:var(--card);padding:0.5rem 1.5rem;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 20px rgba(0,0,0,0.3);position:sticky;top:0;z-index:100;height:60px}
+.logo-area{display:flex;align-items:center;gap:10px}
+.logo-area img{width:32px;height:32px;object-fit:contain;filter:drop-shadow(0 0 5px rgba(60,196,124,0.5))}
+.logo-area h1{font-size:1rem;font-weight:600;color:var(--primary);letter-spacing:0.5px}
+.nav-links a{color:var(--text-sec);text-decoration:none;font-size:0.8rem;transition:0.3s;margin-left:15px}
+.nav-links a:hover{color:var(--primary)}
+main{flex:1;max-width:1200px;width:100%;margin:20px auto;padding:0 20px;display:grid;grid-template-columns:1fr;gap:20px}
+.container{background-color:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.2)}
+.tabs{display:flex;background:rgba(0,0,0,0.2);border-bottom:1px solid var(--border)}
+.tab-btn{flex:1;background:none;border:none;padding:12px;color:var(--text-sec);cursor:pointer;font-family:'Poppins',sans-serif;font-weight:500;transition:0.3s;display:flex;align-items:center;justify-content:center;gap:8px;font-size:0.9rem}
+.tab-btn:hover{color:var(--text);background:rgba(255,255,255,0.02)}
+.tab-btn.active{color:var(--primary);border-bottom:2px solid var(--primary);background:rgba(60,196,124,0.05)}
+.content-area{padding:20px;display:none;animation:fadeIn 0.4s ease}
+.content-area.active{display:block}
+.result-body{padding:20px;display:block;animation:fadeIn 0.4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.input-group{margin-bottom:20px}
+.input-group label{display:block;margin-bottom:8px;font-weight:500;color:var(--primary);font-size:0.9rem}
+textarea{width:100%;height:250px;background-color:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;padding:15px;color:var(--text);font-family:'Poppins',sans-serif;font-size:0.85rem;resize:vertical;transition:0.3s}
+textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(60,196,124,0.1)}
+.file-upload-wrapper{position:relative;width:100%;height:50px;border:2px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:0.3s;margin-bottom:20px}
+.file-upload-wrapper:hover{border-color:var(--primary);background:rgba(60,196,124,0.05)}
+.file-upload-wrapper input{position:absolute;width:100%;height:100%;opacity:0;cursor:pointer}
+.file-info{display:flex;align-items:center;gap:10px;color:var(--text-sec);font-size:0.9rem}
+.action-btn{width:100%;padding:12px;border:none;border-radius:8px;background:linear-gradient(45deg,var(--primary),#2b8c56);color:#fff;font-weight:600;font-size:0.95rem;cursor:pointer;transition:0.3s;font-family:'Poppins',sans-serif;box-shadow:0 4px 15px rgba(60,196,124,0.3)}
+.action-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(60,196,124,0.4)}
+.action-btn:active{transform:translateY(0)}
+.stats-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:20px 0}
+.stat-item{background:rgba(0,0,0,0.2);padding:10px;border-radius:8px;text-align:center;border:1px solid var(--border)}
+.stat-item h3{font-size:1.5rem;color:var(--primary);margin-bottom:2px}
+.stat-item p{font-size:0.75rem;color:var(--text-sec)}
+.result-preview{background:#1a1a1a;border-radius:8px;border:1px solid var(--border);padding:15px;position:relative;min-height:100px;display:flex;flex-direction:column}
+.preview-header{display:flex;justify-content:space-between;margin-bottom:10px;font-size:0.85rem;color:var(--primary)}
+.preview-content{font-family:'Courier New',monospace;font-size:0.85rem;color:#e0e0e0;line-height:1.6;white-space:pre-wrap;max-height:300px;overflow-y:auto;background:transparent;width:100%;flex:1;word-break:break-all}
+.preview-divider{text-align:center;color:var(--text-sec);margin:10px 0;font-style:italic;font-size:0.8rem;border-top:1px dashed #333;border-bottom:1px dashed #333;padding:5px}
+.download-btn{margin-top:20px;background:#404040;width:auto;display:inline-flex;align-items:center;gap:10px}
+.download-btn:hover{background:#505050}
+.settings-section-title{color:var(--primary);font-size:0.85rem;font-weight:600;margin:20px 0 10px 5px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);padding-bottom:5px}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:12px;background:rgba(0,0,0,0.2);border-radius:8px;margin-bottom:10px;font-size:0.9rem}
+.switch{position:relative;display:inline-block;width:46px;height:22px}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#ccc;transition:.4s;border-radius:34px}
+.slider:before{position:absolute;content:"";height:14px;width:14px;left:4px;bottom:4px;background-color:white;transition:.4s;border-radius:50%}
+input:checked+.slider{background-color:var(--primary)}
+input:checked+.slider:before{transform:translateX(24px)}
+input[type=number]{background:transparent;border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:4px;width:70px;font-size:0.9rem}
+footer{text-align:center;padding:15px;color:var(--text-sec);font-size:0.75rem;margin-top:auto;border-top:1px solid var(--border)}
+footer a{color:var(--primary);text-decoration:none}
+@media (max-width:768px){header{flex-direction:column;gap:10px;height:auto;padding:1rem}.nav-links{margin-top:5px}}
+</style>
+</head>
+<body>
+
+<header>
+    <div class="logo-area">
+        <img src="https://darkcrack.com/public/assets/favicon-qqdydts3.png" alt="Logo">
+        <h1>DarkCrack Combo Parser</h1>
+    </div>
+    <nav class="nav-links">
+        <a href="https://darkcrack.com" target="_blank"><i class="fas fa-users"></i> Forum</a>
+        <a href="#"><i class="fas fa-code"></i> Yapımcı: kuvvetmira</a>
+    </nav>
+</header>
+
+<main>
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('parser')"><i class="fas fa-magic"></i> Ayıklayıcı</button>
+            <button class="tab-btn" onclick="switchTab('settings')"><i class="fas fa-cog"></i> Ayarlar</button>
+        </div>
+
+        <div id="parser" class="content-area active">
+            <div class="input-group">
+                <label><i class="fas fa-keyboard"></i> Manuel Giriş veya Dosya Yükle</label>
+                <div class="file-upload-wrapper">
+                    <input type="file" id="fileInput" accept=".txt">
+                    <div class="file-info">
+                        <i class="fas fa-cloud-upload-alt fa-lg"></i>
+                        <span id="fileName">Tıkla veya .txt dosyasını buraya sürükle</span>
+                    </div>
+                </div>
+                <textarea id="inputText" placeholder="Combo listenizi buraya yapıştırın..."></textarea>
+                <div id="limitWarning" style="display:none; color:var(--danger); font-size:0.8rem; margin-top:5px;">
+                    <i class="fas fa-exclamation-triangle"></i> Satır sınırı aşıldı. Sadece ilk <span id="limitCountDisplay"></span> satır işlenecek. (Ayarlardan değiştirilebilir)
+                </div>
+            </div>
+            <button class="action-btn" onclick="processData()"><i class="fas fa-play"></i> Verileri Ayıkla</button>
+        </div>
+
+        <div id="settings" class="content-area">
+            <div class="settings-section-title">Sistem Ayarları</div>
+            <div class="settings-row">
+                <span>Kopya Satırları Sil (Deduplicate)</span>
+                <label class="switch">
+                    <input type="checkbox" id="removeDupes" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="settings-row">
+                <span>Manuel Giriş Satır Engelleyici</span>
+                <label class="switch">
+                    <input type="checkbox" id="limitToggle" checked onchange="toggleLimit()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="settings-row">
+                <span>Maksimum Satır Sayısı</span>
+                <input type="number" id="limitNumber" value="2500" onchange="updateLimitVal()">
+            </div>
+
+            <div class="settings-section-title">Veri Tipi Ayarları</div>
+            <div class="settings-row">
+                <span><i class="fas fa-envelope"></i> E-Posta:Şifre (user@mail.com:pass)</span>
+                <label class="switch">
+                    <input type="checkbox" id="filterEmail" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="settings-row">
+                <span><i class="fas fa-user"></i> User:Şifre (username:pass)</span>
+                <label class="switch">
+                    <input type="checkbox" id="filterUser" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="settings-row">
+                <span><i class="fas fa-phone"></i> Tel:Şifre (555XXXX:pass)</span>
+                <label class="switch">
+                    <input type="checkbox" id="filterPhone" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="resultSection" style="display:none">
+        <div class="result-body">
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <h3 id="totalLines">0</h3>
+                    <p>Toplam Satır</p>
+                </div>
+                <div class="stat-item">
+                    <h3 id="validLines" style="color:#4cd137">0</h3>
+                    <p>Ayıklanan</p>
+                </div>
+            </div>
+            
+            <div class="result-preview">
+                <div class="preview-header">
+                    <span><i class="fas fa-eye"></i> Önizleme</span>
+                    <span>Sonuç</span>
+                </div>
+                <div class="preview-content" id="previewContent"></div>
+            </div>
+
+            <button class="action-btn download-btn" onclick="downloadResult()">
+                <i class="fas fa-download"></i> Sonucu İndir (.txt)
+            </button>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <p>&copy; 2024 DarkCrack Combo Parser. Created by <a href="#">kuvvetmira</a> | <a href="https://darkcrack.com">darkcrack.com</a></p>
+</footer>
+
+<script>
+let limitEnabled = true;
+let lineLimit = 2500;
+let parsedData = [];
+let isFileLoaded = false;
+
+const fileInput = document.getElementById('fileInput');
+const fileName = document.getElementById('fileName');
+const inputText = document.getElementById('inputText');
+const limitWarning = document.getElementById('limitWarning');
+const limitCountDisplay = document.getElementById('limitCountDisplay');
+
+function switchTab(tabId) {
+    document.querySelectorAll('.content-area').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    event.currentTarget.classList.add('active');
+}
+
+function toggleLimit() {
+    limitEnabled = document.getElementById('limitToggle').checked;
+    checkInputLimit();
+}
+
+function updateLimitVal() {
+    lineLimit = parseInt(document.getElementById('limitNumber').value);
+    checkInputLimit();
+}
+
+inputText.addEventListener('input', () => {
+    if(!isFileLoaded) checkInputLimit();
+});
+
+function checkInputLimit() {
+    if (!limitEnabled || isFileLoaded) {
+        limitWarning.style.display = 'none';
+        return;
+    }
+    const lines = inputText.value.split('\n').length;
+    limitCountDisplay.innerText = lineLimit;
+    if (lines > lineLimit) {
+        limitWarning.style.display = 'block';
+    } else {
+        limitWarning.style.display = 'none';
+    }
+}
+
+fileInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    fileName.innerText = file.name;
+    isFileLoaded = true;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const content = e.target.result;
+        const lines = content.split('\n');
+        
+        let previewText = "";
+        const previewLimit = 50;
+        
+        for(let i=0; i < Math.min(lines.length, previewLimit); i++) {
+            previewText += lines[i] + "\n";
+        }
+        if(lines.length > previewLimit) previewText += `... (Toplam ${lines.length} satır yüklendi, işlenmeye hazır)`;
+        
+        inputText.value = previewText;
+        inputText.disabled = true;
+        limitWarning.style.display = 'none';
+        
+        file.fullContent = content; 
+    };
+    reader.readAsText(file);
+});
+
+function escapeHtml(text) {
+  if(!text) return text;
+  return text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+}
+
+function parseLine(line) {
+    if (!line || line.trim().length === 0) return null;
+    if (line.includes('[NOT_SAVED]')) return null;
+    
+    let cleanLine = line.trim();
+    if(cleanLine.includes(' ')) cleanLine = cleanLine.split(' ')[0];
+    
+    cleanLine = cleanLine.replace(/\|/g, ':');
+    cleanLine = cleanLine.replace(/^(https?:\/\/)?(www\.)?/, '');
+    
+    const parts = cleanLine.split(':');
+    let extracted = null;
+
+    if(parts.length === 2) {
+        extracted = `${parts[0]}:${parts[1]}`;
+    } else if (parts.length >= 3) {
+        extracted = `${parts[parts.length-2]}:${parts[parts.length-1]}`;
+    }
+
+    if (!extracted) return null;
+
+    const [userPart] = extracted.split(':');
+    
+    const isEmail = userPart.includes('@');
+    const isPhone = /^\+?\d{7,}$/.test(userPart);
+    const isUser = !isEmail && !isPhone;
+
+    const allowEmail = document.getElementById('filterEmail').checked;
+    const allowUser = document.getElementById('filterUser').checked;
+    const allowPhone = document.getElementById('filterPhone').checked;
+
+    if (isEmail && !allowEmail) return null;
+    if (isPhone && !allowPhone) return null;
+    if (isUser && !allowUser) return null;
+
+    return extracted;
+}
+
+function processData() {
+    let rawData = "";
+    const removeDupes = document.getElementById('removeDupes').checked;
+    
+    if(isFileLoaded && fileInput.files[0] && fileInput.files[0].fullContent) {
+        rawData = fileInput.files[0].fullContent;
+    } else {
+        rawData = inputText.value;
+        if(limitEnabled) {
+            const lines = rawData.split('\n');
+            if(lines.length > lineLimit) {
+                rawData = lines.slice(0, lineLimit).join('\n');
+            }
+        }
+    }
+
+    const lines = rawData.split(/\r?\n/);
+    parsedData = [];
+    const seen = new Set();
+    
+    lines.forEach(line => {
+        const result = parseLine(line);
+        if(result) {
+            if(removeDupes) {
+                if(!seen.has(result)) {
+                    seen.add(result);
+                    parsedData.push(result);
+                }
+            } else {
+                parsedData.push(result);
+            }
+        }
+    });
+
+    displayResults(lines.length);
+}
+
+function displayResults(totalRaw) {
+    const resultSection = document.getElementById('resultSection');
+    resultSection.style.display = 'none'; 
+    
+    document.getElementById('totalLines').innerText = totalRaw;
+    document.getElementById('validLines').innerText = parsedData.length;
+    
+    const previewBox = document.getElementById('previewContent');
+    let html = "";
+    
+    if(parsedData.length === 0) {
+        html = '<span style="color:#ff4757;font-style:italic;display:block;padding:20px;text-align:center;">Seçilen ayarlara göre uygun veri bulunamadı.<br>Lütfen "Ayarlar" sekmesinden filtreleri kontrol edin ve tekrar "Verileri Ayıkla" butonuna basın.</span>';
+    } else {
+        const headCount = 10;
+        const tailCount = 10;
+        
+        let displayData = [];
+        
+        if (parsedData.length <= (headCount + tailCount)) {
+            displayData = parsedData;
+            html = displayData.map(line => escapeHtml(line)).join('\n');
+        } else {
+            const head = parsedData.slice(0, headCount).map(line => escapeHtml(line)).join('\n');
+            const tail = parsedData.slice(parsedData.length - tailCount).map(line => escapeHtml(line)).join('\n');
+            html = `${head}\n\n<div class="preview-divider">... ${parsedData.length - (headCount + tailCount)} satır gizlendi (Performans için) ...</div>\n${tail}`;
+        }
+    }
+    
+    previewBox.innerHTML = html;
+    
+    resultSection.style.display = 'block'; 
+    
+    setTimeout(() => {
+        resultSection.scrollIntoView({behavior: 'smooth'});
+    }, 100);
+}
+
+function downloadResult() {
+    if(parsedData.length === 0) {
+        alert("İndirilecek veri yok!");
+        return;
+    }
+    
+    const blob = new Blob([parsedData.join('\r\n')], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'DarkCrack-Parsed-' + new Date().getTime() + '.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
